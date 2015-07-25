@@ -3,6 +3,8 @@ layout: default
 permalink: /goals/
 ---
 
+#Goals
+
 The ultimate goal is to enable developers to easily build awesome client SDKs for their APIs.  
 
 - Create HTTP requests based on API semantics

@@ -4,8 +4,6 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme! You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](http://jekyllrb.com/)
+This project is the evolution of several separate projects into a single cohesive toolkit for building API client SDKs.  This is an attempt to provide an alternative to the currently common approach of taking an API metadescription and using a significant amount of code generation to produce a API SDKs for different platforms.
 
-You can find the source code for the Jekyll new theme at: [github.com/jglovier/jekyll-new](https://github.com/jglovier/jekyll-new)
-
-You can find the source code for Jekyll at [github.com/jekyll/jekyll](https://github.com/jekyll/jekyll)
+This approach provides a set of opt-in tooling and can use a minimal amount of code generation (or none at all) to produce a more flexible and robust library to help developers consume an HTTP API.  
