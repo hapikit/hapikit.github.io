@@ -9,7 +9,7 @@ permalink: /examples/
 This example demonstrates how to create links that do versioning either in the URL or via accept header.
 
 [Runscope .net SDK](https://github.com/hapikit/runscope.net.hapikit)
-This is one of the more completely examples.  
+This is one of the more complete examples.  
 
 [Github .net SDK](https://github.com/hapikit/github.net.hapikit)
 This example demonstrates the use of an API specific media type to interpret responses generically.
