@@ -20,6 +20,26 @@ var url = new UriTemplate("http://example.org/{tenant}/customers")
 
 {% endhighlight %}
 
+## RequestFactory
+
+The most fundamentally different approach that Hapikit SDKs take is that they explicitly expose the ability to create HTTP request messages and process HTTP response messages in the native types of the platform being supported.  Most API SDKs hide these steps behind a procedure call and due to this are forced to make many decisions on behalf of the client application.  This severely limits the re-usability of the SDK.
+
+The IRequestFactory interface is the C# implementation of the abstraction used to expose the ability to create a HTTP request.  In C# the native type is a HttpRequestMessage class.
+
+{% highlight csharp %}
+
+    public interface IRequestFactory
+    {
+      string LinkRelation { get; }
+      HttpRequestMessage CreateRequest();
+    }
+
+{% endhighlight %}
+
+The LinkRelation property is a type identifier that is used to distinguish one HttpRequestMessage from another.  The identifiers are either standardized or specific to the API being consumed.
+
+The IRequestFactory interface is implemented by the Link class.
+
 ## Link
 In order to encapsulate the API semantics required to build HTTP requests, HapiKit SDKs create specialized link classes as factories for HTTP requests.  A class named [Link](https://github.com/hapikit/hapikit.net/blob/master/src/Hapikit.net/Links/Link.cs) is used a base for the specialized Links.
 
@@ -43,6 +63,8 @@ namespace haveibeenpwnd.net.hapisdk
 }
 
 {% endhighlight %}
+
+
 
 ## RequestBuilder
 RequestBuilder is an implementation of the [chain of responsibility pattern](https://en.wikipedia.org/wiki/Chain-of-responsibility_pattern) for allowing link classes to compose the construction behaviour of request messages.  Usually the construction of HTTP header values are independent from each other and frequently applicable to multiple link types.  Encapsulating the behaviour in chainable RequestBuilder classes allows the code to be isolated and reused.
