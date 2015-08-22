@@ -45,10 +45,56 @@ namespace haveibeenpwnd.net.hapisdk
 {% endhighlight %}
 
 ## RequestBuilder
+RequestBuilder is an implementation of the [chain of responsibility pattern](https://en.wikipedia.org/wiki/Chain-of-responsibility_pattern) for allowing link classes to compose the construction behaviour of request messages.  Usually the construction of HTTP header values are independent from each other and frequently applicable to multiple link types.  Encapsulating the behaviour in chainable RequestBuilder classes allows the code to be isolated and reused.
 
-## ResponseHandler
+DefaultRequestBuilder is the default implementation of the factory class used by Link classes to create request messages.  The DefaultRequestBuilder performs the following functions:
+
+* Update the request message with the HTTP body assigned to the link, if there is one
+* Update the request message with the HTTP method assigned to the link
+* Reflect over the link class looking for LinkParameter attributes and attempt to resolve the UriTemplate in the Link class using those parameters.
+
+The default requestbuilder can be replaced completely or new requestbuilder classes can be chained to together to compose the construction mechanism.
+
+RequestBuilders can be used to build Authorization headers when authorization scheme parameters include signatures of the request body.  They can be used to decide on whether a body should be chunked or compressed based on the size of the request body.  They can add custom headers that are specific to a particular application or API.
+
+Currently, the Link class only allows someone who is using a Link to add an additional RequestBuilder.  There is no way to remove RequestBuilders that have been defined in the derived Link class.  Having said that, there is nothing stopping an added RequestBuilder from undoing changes made by built in Requestbuilders.
+
+There are three levels at which RequestBuilder behaviour can be added to Link classes:
+
+* In the constructor of the derived link class
+* RequestBuilders can be registered in the LinkFactory
+* Client code can add RequestBuilders to the chain
+
+The first option is used when the definition of the Link Relation Type defines a particular request behaviour. The second option is used when a particular client application always wants a particular behaviour whenever a the link type is discovered in a hypermedia document.  The third option is when a particular instance of following a link needs to add a behaviour due to the current client state.  
+
+## ResponseHandlers
+Response handlers are based around the standard interface IResponseHandler
+
+{% highlight csharp %}
+
+   public interface IResponseHandler
+   {
+       Task<HttpResponseMessage> HandleResponseAsync(string linkRelation, HttpResponseMessage responseMessage);
+   }
+
+{% endhighlight %}
+
+The intent of this interface is to decouple the code that makes the HTTP request from the code that handles the response. The only context that can be used to process the response is type of link that was followed, the response message and the current state of the response handler. This de-coupling encourages clients to be more capable of dealing with changes that occur on the server as fewer assumptions are made about the response to a request.
+
+There are several extension methods that enable consise use of a ResponseHandler to process the response to a request. For example, the following code uses the IRequestFactory interface on the _link_ object to create a _HttpRequestMessage_ and then the IResponseHandler interface on the _clientState_ object to handle the HttpResponseMessage.
+
+{% highlight csharp %}
+
+     await client.FollowLinkAsync(link)
+              .ApplyRepresentationToAsync(clientState);
+
+{% endhighlight %}
+
+In this case we are still selecting a specific response handler to deal with the response from a specific request.
 
 ## HttpResponseMachine
+To further de-couple the processing of responses to allow plugging in standard behaviours for many standard responses we can turn to the HttpResponseMachine.
+
 
 ## HTTP Cache
 
