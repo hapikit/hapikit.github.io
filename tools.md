@@ -64,7 +64,7 @@ namespace haveibeenpwnd.net.hapisdk
 
 {% endhighlight %}
 
-
+The Link class itself does not actually build the HTTP request, it holds a chain of RequestBuilders that do all the work.
 
 ## RequestBuilder
 RequestBuilder is an implementation of the [chain of responsibility pattern](https://en.wikipedia.org/wiki/Chain-of-responsibility_pattern) for allowing link classes to compose the construction behaviour of request messages.  Usually the construction of HTTP header values are independent from each other and frequently applicable to multiple link types.  Encapsulating the behaviour in chainable RequestBuilder classes allows the code to be isolated and reused.
@@ -115,7 +115,29 @@ There are several extension methods that enable consise use of a ResponseHandler
 In this case we are still selecting a specific response handler to deal with the response from a specific request.
 
 ## HttpResponseMachine
-To further de-couple the processing of responses to allow plugging in standard behaviours for many standard responses we can turn to the HttpResponseMachine.
+We can further de-couple the processing of responses to allow plugging in standard behaviours for many standard responses by using the HttpResponseMachine.
+
+There are two variants of the HttpResponseMachine, a stateless one and a stateful one that is implemented as HttpResponseMachine<T> where T is a model of the state being affected by the response.
+
+In the stateless version, you can add a response handler that will be executed based on the link relation type followed and certain elements of the response like HTTP Status Code, media type and profile.
+
+For example, this code adds a handler for HTTP status code 200 when following a link type called "foolink" and the content type is _application/json_.
+
+{% highlight csharp %}
+
+machine.AddResponseHandler(async (l, r) =>
+ {
+     var text = await r.Content.ReadAsStringAsync();
+     root = JToken.Parse(text);
+     return r;
+ }, HttpStatusCode.OK,linkRelation: "foolink", contentType: new MediaTypeHeaderValue("application/json"), profile: null);
+
+ {% endhighlight %}
+
+Only the HTTP Status code value is mandatory for mapping a response handler.  The other properties are optional. If you don't need a link relation to provide context then that's great because it means your response is fully self-descriptive.  I have found there are scenarios where the response just doesn't provide enough context to determine what action needs to be taken.
+For extremely generic media types like _application/json_ you may need to invent some really specific link relation types that map 1:1 to resource templates. Profiles can be used layer application semantics on top of generic hypermedia types.
+
+TODO:  Currently the HttpResponseMachine does not provide any assistance in parsing media types and profiles, but the plan is to introduce a mechanism to register translation functions that will be able to do all the work to convert response bodies to application level objects.  This should allow response handlers to be registered that accept application level objects as inputs and the HttpResponseMachine will take care of finding the right translators to do the work.
 
 
 ## HTTP Cache
